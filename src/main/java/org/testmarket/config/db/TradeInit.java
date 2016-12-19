@@ -179,25 +179,11 @@ public class TradeInit extends AbstractInit {
         };
 
         logger.info(" Solding started................. ");
-//        r2.start();
-//        r1.start();
-//        r3.start();
-//        r4.start();
-        
-        
-        Broker broker1 =  new Broker("Broker1");
-        broker1.setCompanies(companyRepository.findAll());
-        broker1.setDaemon(true);
-        broker1.setTradeService(tradeService);
-        broker1.start();
-        
-        Broker broker2 =  new Broker("Broker2");
-        broker2.setCompanies(companyRepository.findAll());
-        broker2.setDaemon(true);
-        broker2.setTradeService(tradeService);
-        broker2.start();
-        
-        
+        r2.start();
+        r1.start();
+        r3.start();
+        r4.start();
+
     }
 
 }
