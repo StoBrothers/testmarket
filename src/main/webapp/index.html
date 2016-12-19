@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Test market</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <link href="webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="webjars/flat-ui/css/flat-ui.css" rel="stylesheet">
+    <link href="static/css/portfolio.css" rel="stylesheet">
+    <script src="webjars/jquery/jquery.min.js"></script>
+    <script src="webjars/bootstrap/js/bootstrap.js"></script>
+    
+        <script language="javascript" type="text/javascript">
+
+        var connectVal = " #target"
+       	var searchButton = " #searchBtn";
+       	var messageOutput = " #messageOutput"
+       	
+            $(document).ready(function(){
+
+            	function writeMessage(message) {
+            		$(messageOutput).append(message + '\n');
+		        }
+
+            	
+            $(searchButton).click(function doConnect() {
+            	$.ajax({ 
+            		   type: "GET",
+            		   dataType: "text",
+            		   url: "http://localhost:8080//rest/accounts/" + $('#target').val(),
+            		   success: function(data){
+                 		$(messageOutput).val(data);
+
+            		   }
+            		});
+            	
+                });
+            	
+            	
+
+
+            $('#doReport')
+                    .click(function () {
+                    	$.ajax({ 
+                 		   type: "GET",
+                 		   dataType: "text",
+                 		   url: "http://localhost:8080//rest/report/",
+                 		   success: function(data){        
+                 		     alert("File created:" +  data);
+                 		   }
+                 		});
+                    });
+        });
+        
+        
+
+    </script>
+</head>
+<body>
+<div class="container">
+<nav class="navbar navbar-default" role="navigation">
+<div class="navbar-header">
+	<h2>Test market </h2>
+	<div class="form-horizontal">
+		<input type="text" id="target"  class="form-horizontal" value="U000"/>
+		<button id="searchBtn" type="button"  class="btn btn-default" >Search</button>
+		<button id="doReport" type="button" class="btn btn-primary">Generate File</button>
+	</div>
+
+        </div>
+        <!--  -div class="navbar-header">
+               <a class="navbar-brand" href="/sessions">Sessions</a>
+               <a class="navbar-brand"  href="/history">History tokens</a>
+        </div-->
+        
+        
+    </nav>
+    <div > 
+		<p class="text-info" ><h4>Accounts :</h4></p>
+		<pre><textarea id="messageOutput" rows="20" class= form-control cols="50"></textarea></pre>
+    </div>
+</div>
+</body>
+</html>
