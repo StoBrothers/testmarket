@@ -6,13 +6,17 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testmarket.domain.Account;
 import org.testmarket.domain.FinType;
 import org.testmarket.domain.FinancialInstrument;
 import org.testmarket.domain.FinancialInstrumentRepository;
-
+/**
+ * FinancialInstrument service.
+ * 
+ * @author Sergey Stotskiy
+ *
+ */
 @Service("finInstrumentService")
 public class FinancialInstrumentServiceImpl implements FinancialInstrumentService {
 
@@ -53,11 +57,5 @@ public class FinancialInstrumentServiceImpl implements FinancialInstrumentServic
         finRepository.save(fin);
         return fin;
     }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void change () {
-        //        tradeService.change();
-        
-    }    
 
 }

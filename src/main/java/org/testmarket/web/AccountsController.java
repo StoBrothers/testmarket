@@ -43,7 +43,7 @@ public class AccountsController {
             return  "Not results"; 
         }
 
-        return reportService.doAccounts(accounts);
+        return reportService.doReportAccounts(accounts);
     }
     
     
@@ -57,7 +57,7 @@ public class AccountsController {
             return  "Not results"; 
         }
 
-        return reportService.doAccounts(accounts);
+        return reportService.doReportAccounts(accounts);
     }
 
 

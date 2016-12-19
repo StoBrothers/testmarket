@@ -9,7 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.testmarket.domain.Company;
 import org.testmarket.domain.CompanyRepository;
-
+/**
+ * Company service.
+ * 
+ * @author Sergey Stotskiy
+ *
+ */
 @Service("companyService")
 public class CompanyServiceImpl implements CompanyService {
 
@@ -24,7 +29,7 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     @Transactional
-    public Company getOrCreateCompany(String companyID) throws Exception {
+    public Company getOrCreateCompanyId(String companyID) throws Exception {
 
         Optional<Company> companyOpt = companyRepository.findOneById(companyID);
 

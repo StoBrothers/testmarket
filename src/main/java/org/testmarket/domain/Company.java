@@ -11,7 +11,11 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
+/**
+ * Company entity.
+ * @author Sergey Stotskiy
+ *
+ */
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "company")
@@ -21,7 +25,13 @@ public class Company implements Serializable {
     @Column(unique = true, nullable = false, updatable = false)
     private String id; /* [\w]{5,10} */
 
+    private BigDecimal Balance;
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Account> accounts;
+
     /**
+     * Get id
      * @return the id
      */
     public String getId() {
@@ -29,30 +39,41 @@ public class Company implements Serializable {
     }
 
     /**
-     * @param id
-     *            the id to set
+     * Set id
+     * @param id the id to set
      */
     public void setId(String id) {
         this.id = id;
     }
 
-    private BigDecimal Balance;
-
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    private List<Account> accounts;
-
+    /**
+     * Get balance
+     * @return
+     */
     public BigDecimal getBalance() {
         return Balance;
     }
-
+    
+    /**
+     * Set balance
+     * @param balance
+     */
     public void setBalance(BigDecimal balance) {
         Balance = balance;
     }
-
+    
+    /**
+     * Get accounts 
+     * @return
+     */
     public List<Account> getAccounts() {
         return accounts;
     }
-
+    
+    /**
+     * Set accounts
+     * @param accounts
+     */
     public void setAccounts(List<Account> accounts) {
         this.accounts = accounts;
     }

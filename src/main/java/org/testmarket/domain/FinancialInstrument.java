@@ -9,6 +9,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+/**
+ * FinancialInstrument entity.
+ * 
+ * @author Sergey Stotskiy
+ *
+ */
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "fininstrument")
@@ -29,34 +35,10 @@ public class FinancialInstrument implements Serializable {
 
     private String companyId;
 
-    public String getCompanyId() {
-        return companyId;
-    }
-
+    
     /**
-     * @param company_id
-     *            the company_id to set
-     */
-    public void setCompanyId(String companyId) {
-        this.companyId = companyId;
-    }
-
-    /**
-     * @return the type
-     */
-    public FinType getType() {
-        return type;
-    }
-
-    /**
-     * @param type
-     *            the type to set
-     */
-    public void setType(FinType type) {
-        this.type = type;
-    }
-
-    /**
+     * Get id
+     * 
      * @return the symbolID
      */
     public String getId() {
@@ -64,14 +46,48 @@ public class FinancialInstrument implements Serializable {
     }
 
     /**
-     * @param symbolID
-     *            the symbolID to set
+     * Set id
+     * @param symbolID the symbolID to set
      */
     public void setId(String symbolID) {
         this.id = symbolID;
     }
 
+
     /**
+     * Get companyId
+     * @return
+     */
+    public String getCompanyId() {
+        return companyId;
+    }
+
+    /**
+     * Set companyId
+     * @param company_id the company_id to set
+     */
+    public void setCompanyId(String companyId) {
+        this.companyId = companyId;
+    }
+
+    /**
+     * Get type
+     * @return the type
+     */
+    public FinType getType() {
+        return type;
+    }
+
+    /**
+     * Set type
+     * @param type the type to set
+     */
+    public void setType(FinType type) {
+        this.type = type;
+    }
+
+    /**
+     * Get count
      * @return the count
      */
     public long getCount() {
@@ -79,14 +95,15 @@ public class FinancialInstrument implements Serializable {
     }
 
     /**
-     * @param count
-     *            the count to set
+     * Set count
+     * @param count the count to set
      */
     public void setCount(long count) {
         this.count = count;
     }
 
     /**
+     * Get account
      * @return the account
      */
     public Account getAccount() {
@@ -94,8 +111,8 @@ public class FinancialInstrument implements Serializable {
     }
 
     /**
-     * @param account
-     *            the account to set
+     * Set account
+     * @param account the account to set
      */
     public void setAccount(Account account) {
         this.account = account;

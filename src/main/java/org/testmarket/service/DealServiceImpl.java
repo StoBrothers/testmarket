@@ -10,6 +10,12 @@ import org.testmarket.domain.Deal;
 import org.testmarket.domain.DealRepository;
 import org.testmarket.domain.FinType;
 
+/**
+ * Deal service.
+ * 
+ * @author Sergey Stotskiy
+ *
+ */
 @Service("dealService")
 public class DealServiceImpl implements DealService {
 

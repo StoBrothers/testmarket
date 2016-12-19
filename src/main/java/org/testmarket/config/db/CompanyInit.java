@@ -88,7 +88,7 @@ public class CompanyInit extends AbstractInit {
      */
     public void create(String companyPrefix) throws Exception {
 
-        Company company = companyService.getOrCreateCompany(companyPrefix);
+        Company company = companyService.getOrCreateCompanyId(companyPrefix);
 
         char finPrefix = companyPrefix.charAt(0);
 

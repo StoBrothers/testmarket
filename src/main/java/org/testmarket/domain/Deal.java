@@ -10,7 +10,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-
+/**
+ * Deal entity for store all deals 
+ * and calculate avg price over 10 last deals.  
+ * 
+ * @author Sergey Stotskiy
+ *
+ */
 @SuppressWarnings("serial")
 @Entity
 public class Deal implements Serializable {
@@ -62,6 +68,7 @@ public class Deal implements Serializable {
     
     
     /**
+     * Get id
      * @return the id
      */
     public long getId() {
@@ -69,6 +76,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Set id
      * @param id the id to set
      */
     public void setId(long id) {
@@ -77,6 +85,7 @@ public class Deal implements Serializable {
 
 
     /**
+     * Get type
      * @return the type
      */
     public FinType getType() {
@@ -84,6 +93,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Set type
      * @param type the type to set
      */
     public void setType(FinType type) {
@@ -91,6 +101,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Get price
      * @return the price
      */
     public BigDecimal getPrice() {
@@ -98,6 +109,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Set price
      * @param price the price to set
      */
     public void setPrice(BigDecimal price) {
@@ -105,6 +117,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Get amount
      * @return the amount
      */
     public BigDecimal getAmount() {
@@ -112,6 +125,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Set amount
      * @param amount the amount to set
      */
     public void setAmount(BigDecimal amount) {
@@ -119,6 +133,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Get count
      * @return the count
      */
     public long getCount() {
@@ -126,6 +141,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Set the count
      * @param count the count to set
      */
     public void setCount(long count) {
@@ -133,6 +149,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Get avg price
      * @return the averagePrice
      */
     public BigDecimal getAveragePrice() {
@@ -140,6 +157,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Set avg price
      * @param averagePrice the averagePrice to set
      */
     public void setAveragePrice(BigDecimal averagePrice) {
@@ -147,6 +165,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Get buyer
      * @return the buyer
      */
     public Account getBuyer() {
@@ -154,6 +173,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Set the buyer
      * @param buyer the buyer to set
      */
     public void setBuyer(Account buyer) {
@@ -161,6 +181,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Get seller
      * @return the seller
      */
     public Account getSeller() {
@@ -168,6 +189,7 @@ public class Deal implements Serializable {
     }
 
     /**
+     * Set the seller
      * @param seller the seller to set
      */
     public void setSeller(Account seller) {
@@ -183,8 +205,5 @@ public class Deal implements Serializable {
             + amount + ", count=" + count + ", averagePrice=" + averagePrice + ", buyer="
             + buyer.getId() + ", seller=" + seller.getId() + "]";
     }
-
-
-    
 
 }

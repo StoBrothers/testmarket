@@ -33,6 +33,8 @@ public interface FinancialInstrumentRepository
     FinancialInstrument findOneForUpdateByCompanyIdAndType(@Param("type") FinType type,
         @Param("companyId") String companyId);
 
+    
+    
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({ @QueryHint(name = "javax.persistence.lock.timeout", value = "-1"),
     @QueryHint(name = "javax.persistence.query.timeout", value = "-1") })

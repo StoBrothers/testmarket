@@ -1,20 +1,26 @@
 package org.testmarket.service;
 
-import java.util.List;
-
 import org.testmarket.domain.Account;
 import org.testmarket.domain.Company;
-import org.testmarket.domain.FinType;
-import org.testmarket.domain.FinancialInstrument;
+
+/**
+ * Account service.
+ * 
+ * @author Sergey Stotskiy
+ *
+ */
 
 public interface AccountService {
-    
+    /**
+     * Get account over id or create new
+     * 
+     * @param accountID
+     * @param company
+     * @return
+     * @throws Exception
+     */
     Account getOrCreateAccount(String accountID, Company company) throws Exception;
-
-    List <Account> findByCompanyId(String companyId);
     
-    FinancialInstrument findResource(FinType type, Company seller);
-
 
 
 }

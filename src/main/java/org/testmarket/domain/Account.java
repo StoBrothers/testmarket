@@ -14,6 +14,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+/**
+ * Account entity 
+ * 
+ * @author Sergey Stotskiy
+ *
+ */
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "account")
@@ -36,6 +42,7 @@ public class Account implements Serializable {
     private List<FinancialInstrument> finInstruments;
 
     /**
+     * Get id 
      * @return the id
      */
     public String getId() {
@@ -43,8 +50,8 @@ public class Account implements Serializable {
     }
 
     /**
-     * @param id
-     *            the id to set
+     * Set id
+     * @param id the id to set
      */
     public void setId(String id) {
         this.id = id;
@@ -53,6 +60,7 @@ public class Account implements Serializable {
     
     
     /**
+     * Get balance
      * @return the balance
      */
     public BigDecimal getBalance() {
@@ -60,14 +68,16 @@ public class Account implements Serializable {
     }
 
     /**
-     * @param balance
-     *            the balance to set
+     * Set balance
+     * @param balance the balance to set
+     *            
      */
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
     /**
+     * Get company 
      * @return the company
      */
     public Company getCompany() {
@@ -75,14 +85,16 @@ public class Account implements Serializable {
     }
 
     /**
-     * @param company
-     *            the company to set
+     * Set the company
+     * @param company the company to set
+     *            
      */
     public void setCompany(Company company) {
         this.company = company;
     }
 
     /**
+     * Get finInstruments 
      * @return the finInstruments
      */
     public List<FinancialInstrument> getFinInstruments() {
@@ -90,8 +102,8 @@ public class Account implements Serializable {
     }
 
     /**
-     * @param finInstruments
-     *            the finInstruments to set
+     * Set finInstruments
+     * @param finInstruments the finInstruments to set
      */
     public void setFinInstruments(List<FinancialInstrument> finInstruments) {
         this.finInstruments = finInstruments;

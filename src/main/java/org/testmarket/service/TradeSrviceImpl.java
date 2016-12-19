@@ -21,14 +21,12 @@ import org.testmarket.domain.DealRepository;
 import org.testmarket.domain.FinType;
 import org.testmarket.domain.FinancialInstrument;
 import org.testmarket.domain.FinancialInstrumentRepository;
+
 /**
  * Service for trades
- * 
- * @author Sergey Stotskiy
  *
+ * @author Sergey Stotskiy
  */
-
-
 @Service("tradeSrvice")
 public class TradeSrviceImpl implements TradeService {
 
@@ -57,12 +55,13 @@ public class TradeSrviceImpl implements TradeService {
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW, rollbackFor = org.springframework.dao.PessimisticLockingFailureException.class)
-    public long change(FinType type, Company seller, Company buyer, long count, BigDecimal delta) {
+    public long change(FinType type, Company seller, Company buyer, long count,
+        BigDecimal delta) {
 
         long soldFinCount = 0;
 
-        logger.debug(" START change seller: " + seller.getId() + " buyer: " + buyer.getId()
-            + "count: " + count);
+        logger.debug(" START change seller: " + seller.getId() + " buyer: "
+            + buyer.getId() + "count: " + count);
 
         FinancialInstrument finSeller = lockResourcesWithCount(type, seller);
 
@@ -91,7 +90,7 @@ public class TradeSrviceImpl implements TradeService {
 
         // update account balance
         updateAccountsBalanceAndDeal(type, soldFinCount, accSeller, accBuyer, delta);
-        
+
         logger.debug(" Finished account change: " + accSeller.getBalance()
             + " buyer count: " + accBuyer.getBalance() + " count: " + soldFinCount);
 
@@ -99,13 +98,16 @@ public class TradeSrviceImpl implements TradeService {
 
     }
 
-    /**
+    /** 
+     * Update financialInstruments information after finishing deal 
+     * 
      * @param count
      * @param soldFinCount
      * @param finSeller
      * @param finBuyer
      * @return
      */
+    @Transactional 
     private long updateFinPositionsCount(long count, long soldFinCount,
         FinancialInstrument finSeller, FinancialInstrument finBuyer) {
         long sellerFinCount = finSeller.getCount();
@@ -129,14 +131,17 @@ public class TradeSrviceImpl implements TradeService {
     }
 
     /**
+     * Update account financial information and information about deal
+     * 
      * @param type
      * @param soldFinCount
      * @param accSeller
      * @param accBauyer
      */
-    private void updateAccountsBalanceAndDeal(FinType type, long soldFinCount, Account accSeller,
-        Account accBauyer, BigDecimal delta) {
-        
+    @Transactional
+    private void updateAccountsBalanceAndDeal(FinType type, long soldFinCount,
+        Account accSeller, Account accBauyer, BigDecimal delta) {
+
         BigDecimal price = dealService.getAveragePriceFinInstrument(type);
 
         price = price.add(delta); // add delta
@@ -153,15 +158,17 @@ public class TradeSrviceImpl implements TradeService {
 
         accountRepository.save(accBauyer);
         accountRepository.save(accSeller);
-        
+
         dealService.addDeal(type, price, amount, soldFinCount, accBauyer, accSeller);
 
     }
 
     /**
+     * Try to lock fin instrument and linked account for bought
+     *
      * @param type
      * @param seller
-     * @return
+     * @return FinancialInstrument if ok and exception is locking is finished with exception
      */
     @SuppressWarnings("finally")
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, noRollbackFor = org.springframework.dao.PessimisticLockingFailureException.class)
@@ -180,6 +187,13 @@ public class TradeSrviceImpl implements TradeService {
         }
     }
 
+    /**
+     * Try to lock fin instrument and linked account for sell
+     *
+     * @param type
+     * @param seller
+     * @return FinancialInstrument if ok and exception is locking is finished with exception
+     */
     @SuppressWarnings("finally")
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, noRollbackFor = org.springframework.dao.PessimisticLockingFailureException.class)
     private FinancialInstrument lockResourcesWithCount(FinType type, Company seller) {

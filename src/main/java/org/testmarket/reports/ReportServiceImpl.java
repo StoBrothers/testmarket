@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.testmarket.domain.Account;
@@ -21,10 +23,19 @@ import org.testmarket.domain.FinType;
 import org.testmarket.domain.FinancialInstrument;
 import org.testmarket.service.DealService;
 
-
+/**
+ * Report service for prepare reports.
+ * 
+ * @author Sergey Stotskiy
+ *
+ */
 @Service("reportService")
 public class ReportServiceImpl implements ReportService {
 
+    private static final Logger logger = LoggerFactory
+        .getLogger(ReportServiceImpl.class);
+
+    
     @Autowired
     CompanyRepository companyRepository;
 
@@ -36,10 +47,11 @@ public class ReportServiceImpl implements ReportService {
     
     public String doReportFile() {
 
+        // file will be created in folder where was started application  
         File file = new File ("result_" + version.getAndIncrement() + ".txt");
 
         try {
-
+        // overwrite old file if it existed 
         file.createNewFile();
         
         Writer writer = new BufferedWriter(new FileWriter(file));
@@ -47,12 +59,15 @@ public class ReportServiceImpl implements ReportService {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(" File could't to create: " + e.toString());
         }
      return file.getAbsolutePath();        
          
     }
     
+    /**
+     * Do report
+     */
     public String doReport() {
         List<CompanyWrapper> companyList = calculationAndPrepareReportData();
         StringBuilder sb = new StringBuilder();
@@ -67,7 +82,7 @@ public class ReportServiceImpl implements ReportService {
     private List<CompanyWrapper> calculationAndPrepareReportData() {
         // Snapshot of prices of finInstruments 
         Map<FinType, BigDecimal> avgPrices = new HashMap<>();
-        
+        // Get and save snapshot with actually prices over all types 
         for (FinType type : FinType.values()) {
             avgPrices.put(type, dealService.getAveragePriceFinInstrument(type));
         }
@@ -95,13 +110,13 @@ public class ReportServiceImpl implements ReportService {
                     BigDecimal finCount =  BigDecimal.valueOf(instrumet.getCount());
                     BigDecimal avgValue =  avgPrices.get(instrumet.getType());
                     finCount = finCount.multiply(avgValue);
-                    equity = equity.add(finCount);
+                    equity = equity.add(finCount); // add cost of current fin instrument
                 }
                 
-                accountReport.setEquity(equity);
+                accountReport.setEquity(equity); // set account level equity 
                 
-                compEquity = compEquity.add(equity);
-                compBalance = compBalance.add(account.getBalance());
+                compEquity = compEquity.add(equity);// update company level equity
+                compBalance = compBalance.add(account.getBalance()); // update company level balance
                 companyReport.addAccount(accountReport);
             }
             
@@ -113,7 +128,11 @@ public class ReportServiceImpl implements ReportService {
         return companyWrapperList;
     }
     
-    public String doAccounts(List<Account> accounts) {
+    /**
+     * Do report for accounts 
+     * 
+     */
+    public String doReportAccounts(List<Account> accounts) {
         List<AccountWrapper> accountList = calculationAccounts(accounts);
         StringBuilder sb = new StringBuilder();
         for (AccountWrapper accountReport : accountList) {
@@ -122,7 +141,11 @@ public class ReportServiceImpl implements ReportService {
         return sb.toString();
     }
 
-    
+    /**
+     * Calculate accounts information for reporting 
+     * @param accounts accounts for reporting
+     * @return AccountWrapper list 
+     */
     private List<AccountWrapper> calculationAccounts(List<Account> accounts) {
         // Snapshot of prices of finInstruments 
         Map<FinType, BigDecimal> avgPrices = new HashMap<>();
