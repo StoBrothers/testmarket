@@ -17,13 +17,13 @@ public class DealServiceImpl implements DealService {
     DealRepository dealRepository;
     
     public  BigDecimal getAveragePriceFinInstrument (FinType type) {
-        return dealRepository.getFinTypAvgValue(type);
+        return dealRepository.getAvgValueByType(type);
     }
     
     
     @Transactional
     public Deal addDeal(FinType type, BigDecimal price, BigDecimal amount, long count, Account buyer, Account seller) {
-        BigDecimal averagePrice =  dealRepository.getFinTypAvgValue(type);
+        BigDecimal averagePrice =  dealRepository.getAvgValueByType(type);
         Deal newDeal = new Deal(type, price, amount, count, buyer, seller, averagePrice);
         return dealRepository.saveAndFlush(newDeal);
     }

@@ -17,7 +17,7 @@ import org.testmarket.service.CompanyService;
 import org.testmarket.service.FinancialInstrumentService;
 
 /**
- * Create Companies with accounts  and fin instruments
+ * Create Companies with accounts  and fin instruments.
  *   
  * @author Sergey Stotskiy
  *
@@ -47,19 +47,13 @@ public class CompanyInit extends AbstractInit {
         try {
             create("YANDEX");
             create("IBM123");
-
+            create("MAILRU");
+            create("CANADA");
         } catch (Exception e) {
             logger.error(" Can't to create companies " + e.getCause());
             System.exit(1);
         }
 
-        // calculationBalance and Equity
-        // 0 create deals 
-        // 1 lock account
-        // 2 get prices info
-        // calculate account equity and update acc
-        // send message to company
-        // 
         
         Company yandCompany = checkCreatedCompany("YANDEX");
 

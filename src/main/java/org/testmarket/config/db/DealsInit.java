@@ -41,14 +41,6 @@ public class DealsInit extends AbstractInit {
     @Override
     protected void init() {
 
-        // calculationBalance and Equity
-        // 0 create deals
-        // 1 lock account
-        // 2 get prices info
-        // calculate account equity and update acc
-        // send message to company
-        //
-
         List<Company> companys = companyRepository.findAll();
 
         Company cmpBuyer = companys.get(1);
@@ -66,12 +58,10 @@ public class DealsInit extends AbstractInit {
 
         Account accBuyer = accsBuyer.get(9);
 
-        createDeal(accSeller, accBuyer, FinType.AER, 3, new BigDecimal(100)); // this values is not
-                                                                              // participate in
-                                                                              // calculation average
-                                                                              // value
-        createDeal(accSeller, accBuyer, FinType.AER, 3, new BigDecimal(50)); // because it 's first
-                                                                             // values
+        // this values is not participate in calculation average value
+        createDeal(accSeller, accBuyer, FinType.AER, 3, new BigDecimal(100));
+        // because it 's first values
+        createDeal(accSeller, accBuyer, FinType.AER, 3, new BigDecimal(50));
 
         createDeals(accSeller, accBuyer, 10);// this 10 deals participate in calculation average
                                              // value

@@ -24,6 +24,15 @@ public class Account implements Serializable {
     @Column(unique = true, nullable = false, updatable = false)
     private String id;
 
+    private BigDecimal balance = BigDecimal.valueOf(1000);
+
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<FinancialInstrument> finInstruments;
+
     /**
      * @return the id
      */
@@ -39,22 +48,8 @@ public class Account implements Serializable {
         this.id = id;
     }
 
-    private BigDecimal balance = BigDecimal.valueOf(1000);
-
-    @Transient
-    private BigDecimal equity = null;
-
-    // /**
-    // * Type of FinancialInstrument, FI count
-    // */
-
-    @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
-    private Company company;
-
-    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
-    private List<FinancialInstrument> finInstruments;
-
+    
+    
     /**
      * @return the balance
      */
@@ -68,21 +63,6 @@ public class Account implements Serializable {
      */
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
-    }
-
-    /**
-     * @return the equity
-     */
-    public BigDecimal getEquity() {
-        return equity;
-    }
-
-    /**
-     * @param equity
-     *            the equity to set
-     */
-    public void setEquity(BigDecimal equity) {
-        this.equity = equity;
     }
 
     /**
@@ -122,12 +102,12 @@ public class Account implements Serializable {
      */
     @Override
     public String toString() {
-        return "Account [accountID=" + id + ", balance=" + balance + ", equity=" + equity
+        return "Account [accountID=" + id + ", balance=" + balance 
             + ", company=" + company.getId() + ", finInstruments="
             + toString(finInstruments) + "]";
     }
 
-    // TODO delete to utility or transform over lambda or delete
+
     public String toString(List<FinancialInstrument> array) {
         StringBuilder buider = new StringBuilder();
         for (FinancialInstrument current : array) {

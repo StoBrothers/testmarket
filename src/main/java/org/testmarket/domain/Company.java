@@ -3,6 +3,7 @@ package org.testmarket.domain;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,7 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @SuppressWarnings("serial")
 @Entity
@@ -19,7 +19,7 @@ public class Company implements Serializable {
 
     @Id
     @Column(unique = true, nullable = false, updatable = false)
-    private String id;   /* [\w]{5,10} */
+    private String id; /* [\w]{5,10} */
 
     /**
      * @return the id
@@ -29,21 +29,14 @@ public class Company implements Serializable {
     }
 
     /**
-     * @param id the id to set
+     * @param id
+     *            the id to set
      */
     public void setId(String id) {
         this.id = id;
     }
 
     private BigDecimal Balance;
-
-    @Transient
-    private BigDecimal Equity;
-
-    /**
-     * Type of FinancialInstrument, FI count
-     */
-    // private Map<String, AtomicLong> countOfFinInstruments = new ConcurrentHashMap<>();
 
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Account> accounts;
@@ -56,14 +49,6 @@ public class Company implements Serializable {
         Balance = balance;
     }
 
-    public BigDecimal getEquity() {
-        return Equity;
-    }
-
-    public void setEquity(BigDecimal equity) {
-        Equity = equity;
-    }
-
     public List<Account> getAccounts() {
         return accounts;
     }
@@ -72,14 +57,15 @@ public class Company implements Serializable {
         this.accounts = accounts;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return "Company [companyID=" + id + ", Balance=" + Balance
-            + ", Equity=" + Equity + ", accounts=" + accounts.size() + "]";
+        return "Company [companyID=" + id + ", Balance=" + Balance + ", accounts="
+            + accounts.size() + "]";
     }
 
-    
 }

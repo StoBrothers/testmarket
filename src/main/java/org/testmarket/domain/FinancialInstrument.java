@@ -7,22 +7,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
 
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "fininstrument")
-@NamedNativeQuery(name=FinancialInstrument.NQUERY_getForUpdate, 
-query = "select fin.* from fininstrument fin  where  company_id =:company_id and type=:type and count > 0 and rownum < 2 for update ", resultClass=FinancialInstrument.class)
 public class FinancialInstrument implements Serializable {
 
-    public static final String NQUERY_getForUpdate = "getFinInstrumentForUpdate";
-    
-    public static final String PARAM_companyId = "company_id";
-    
-    public static final String PARAM_type = "type";
-    
     @Id
     @Column(unique = true, nullable = false, updatable = false)
     private String id;
@@ -35,16 +26,16 @@ public class FinancialInstrument implements Serializable {
 
     @Column(nullable = false, updatable = false)
     private FinType type;
-    
+
     private String companyId;
-    
 
     public String getCompanyId() {
         return companyId;
     }
 
     /**
-     * @param company_id the company_id to set
+     * @param company_id
+     *            the company_id to set
      */
     public void setCompanyId(String companyId) {
         this.companyId = companyId;
@@ -112,13 +103,13 @@ public class FinancialInstrument implements Serializable {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
         return "[symbolID=" + id + ", count=" + count + ", type=" + type.name()
-            + ", account=" + account.getId() + " companyId: "+ companyId + "]";
+            + ", account=" + account.getId() + " companyId: " + companyId + "]";
     }
 
 }
