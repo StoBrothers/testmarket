@@ -2,7 +2,6 @@ package org.testmarket.config.db;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -24,7 +23,11 @@ import org.testmarket.service.FinancialInstrumentService;
 import org.testmarket.service.TradeService;
 
 /**
- * Create Companies with accounts and fin instruments
+ * This module contains test:  
+ * Starting 4 concurrency threads for 2 companies.
+ * This threads try to sell and to buy finInstruments only AER type.
+ * We can to observe rollback state and failed transaction.
+ * Application don't try to execute failed deals and app only skiped failed deals in this test.
  *
  * @author Sergey Stotskiy
  *
@@ -59,13 +62,22 @@ public class TradeInit extends AbstractInit {
 
     @PersistenceContext
     private EntityManager em;
-    
+
     @Autowired
     TradeService tradeService;
 
-
     @Override
     protected void init() {
+        testMultiThreadsDeals();
+    }
+
+    /**
+     * Starting 4 concurrency threads for 2 companies.
+     * This threads try to sell and to buy finInstruments only AER type.
+     * We can to observe rollback state and failed transaction.
+     * Application don't try to execute failed deals and app only skiped this deals in this test.
+     */
+    private void testMultiThreadsDeals() {
 
         List<Company> companys = companyRepository.findAll();
 
@@ -73,33 +85,25 @@ public class TradeInit extends AbstractInit {
 
         Company cmpSeller = companys.get(0);
 
-        logger.info(" START " + cmpSeller.getId());
-
-        Map<String, Object> map = em.getProperties();
-        for (String current : map.keySet()) {
-
-            logger.info(current + "=" + map.get(current));
-
-        }
+        logger.info(" Those companies : " + cmpSeller.getId() + " , " + cmpBuyer.getId()
+            + " will be participate in trades ");
 
         Thread r1 = new Thread() {
             @Override
             public void run() {
-                int i = 100;
-                while (i > 0) {
-                    i--;
-
+                for (int i = 0; i < 100; i++) { // count of try make deal
                     try {
-                        long resultCount = tradeService.change(FinType.AER, cmpSeller, cmpBuyer, 1, new BigDecimal(-1));
-
+                        long resultCount = tradeService.change(FinType.AER, cmpSeller,
+                            cmpBuyer, 1, new BigDecimal(-1));
                     } catch (Exception e) {
                         logger
                             .error("Error r1 " + e.getClass().getName() + "thread sleep");
                         try {
                             Thread.sleep(100);
-                            logger.error("Thread aaa wake up");
+                            logger.error("Thread r1 wake up");
                         } catch (InterruptedException e1) {
-                            e1.printStackTrace();
+                            logger.error(
+                                "Thread r1 waked up with exception: " + e1.toString());
                         }
 
                     }
@@ -111,22 +115,19 @@ public class TradeInit extends AbstractInit {
         Thread r2 = new Thread() {
             @Override
             public void run() {
-                int i = 100;
-                while (i > 0) {
-                    i--;
-
+                for (int i = 0; i < 100; i++) { // count of try make deal
                     try {
                         long resultCount = tradeService.change(FinType.AER, cmpBuyer,
                             cmpSeller, 1, new BigDecimal(-3));
                     } catch (Exception e) {
-                        logger.error("Erroror bbb " + e.getClass().getName() + " sleep");
-
+                        logger.error("Erroror r2 " + e.getClass().getName() + " sleep");
                         try {
                             Thread.sleep(100);
                             logger.error("Thread r2 wake up");
 
                         } catch (InterruptedException e1) {
-                            e1.printStackTrace();
+                            logger.error(
+                                "Thread r2 waked up with exception: " + e1.toString());
                         }
                     }
                 }
@@ -136,10 +137,7 @@ public class TradeInit extends AbstractInit {
         Thread r3 = new Thread() {
             @Override
             public void run() {
-                int i = 100;
-                while (i > 0) {
-                    i--;
-
+                for (int i = 0; i < 100; i++) { // count of try make deal
                     try {
                         long resultCount = tradeService.change(FinType.AER, cmpBuyer,
                             cmpSeller, 1, new BigDecimal(1));
@@ -148,9 +146,10 @@ public class TradeInit extends AbstractInit {
 
                         try {
                             Thread.sleep(100);
-                            logger.error("Thread ccc wake up");
+                            logger.error("Thread r3 wake up");
                         } catch (InterruptedException e1) {
-                            e1.printStackTrace();
+                            logger.error(
+                                "Thread r3 waked up with exception: " + e1.toString());
                         }
                     }
                 }
@@ -160,20 +159,18 @@ public class TradeInit extends AbstractInit {
         Thread r4 = new Thread() {
             @Override
             public void run() {
-                int i = 100;
-                while (i > 0) {
-                    i--;
-
+                for (int i = 0; i < 100; i++) { // count of try make deal
                     try {
                         long resultCount = tradeService.change(FinType.AER, cmpBuyer,
                             cmpSeller, 1, new BigDecimal(3));
                     } catch (Exception e) {
-                        logger.error("Error ddd " + e.getClass().getName() + " sleep");
+                        logger.error("Error r4 " + e.getClass().getName() + " sleep");
                         try {
                             Thread.sleep(100);
-                            logger.error("Thread ddd wake up");
+                            logger.error("Thread r4 wake up");
                         } catch (InterruptedException e1) {
-                            e1.printStackTrace();
+                            logger.error(
+                                "Thread r4 waked up with exception: " + e1.toString());
                         }
 
                     }
@@ -182,11 +179,25 @@ public class TradeInit extends AbstractInit {
         };
 
         logger.info(" Solding started................. ");
-        r2.start();
-        r1.start();
-        r3.start();
-        r4.start();
+//        r2.start();
+//        r1.start();
+//        r3.start();
+//        r4.start();
+        
+        
+        Broker broker1 =  new Broker("Broker1");
+        broker1.setCompanies(companyRepository.findAll());
+        broker1.setDaemon(true);
+        broker1.setTradeService(tradeService);
+        broker1.start();
+        
+        Broker broker2 =  new Broker("Broker2");
+        broker2.setCompanies(companyRepository.findAll());
+        broker2.setDaemon(true);
+        broker2.setTradeService(tradeService);
+        broker2.start();
+        
+        
     }
-
 
 }

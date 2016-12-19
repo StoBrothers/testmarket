@@ -1,4 +1,4 @@
-# testmarket
+# Testmarket
 
 Technologies: Spring MVC + REST + JSON API + pessimistic row locks.
     
@@ -41,6 +41,13 @@ Application provides the following functions:
  
 Run application
 ------------------------------
+
+Please execute this commands to run application:
+
+```
+mvn spring-boot:run
+```
+
 You can open application in browser: http://localhost:8080
 
 

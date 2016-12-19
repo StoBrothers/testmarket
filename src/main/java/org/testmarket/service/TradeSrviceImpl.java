@@ -60,7 +60,7 @@ public class TradeSrviceImpl implements TradeService {
 
         long soldFinCount = 0;
 
-        logger.debug(" START change seller: " + seller.getId() + " buyer: "
+        logger.info(" START change seller: " + seller.getId() + " buyer: "
             + buyer.getId() + "count: " + count);
 
         FinancialInstrument finSeller = lockResourcesWithCount(type, seller);
@@ -91,7 +91,7 @@ public class TradeSrviceImpl implements TradeService {
         // update account balance
         updateAccountsBalanceAndDeal(type, soldFinCount, accSeller, accBuyer, delta);
 
-        logger.debug(" Finished account change: " + accSeller.getBalance()
+        logger.info(" Finished account change: " + accSeller.getBalance()
             + " buyer count: " + accBuyer.getBalance() + " count: " + soldFinCount);
 
         return soldFinCount;
@@ -116,6 +116,8 @@ public class TradeSrviceImpl implements TradeService {
 
         if (sellerFinCount > count) {
             soldFinCount = count;
+        } else {
+            soldFinCount = sellerFinCount;
         }
 
         buyerFinCount += soldFinCount;
@@ -179,7 +181,7 @@ public class TradeSrviceImpl implements TradeService {
                 seller.getId());
             Account accBuyer = finBuyer.getAccount();
             em.lock(accBuyer, LockModeType.PESSIMISTIC_WRITE);
-            logger.info("Locked: " + finBuyer.getId());
+            logger.debug("Locked: " + finBuyer.getId());
         } catch (Exception e) {
             logger.error("Lock is impossible: " + e.getClass().getName());
         } finally {
@@ -203,7 +205,7 @@ public class TradeSrviceImpl implements TradeService {
                 seller.getId());
             Account accSeller = finSeller.getAccount();
             em.lock(accSeller, LockModeType.PESSIMISTIC_WRITE);
-            logger.info("Locked: " + finSeller.getId());
+            logger.debug("Locked: " + finSeller.getId());
         } catch (Exception e) {
             logger.error("Lock is impossible: " + e.getClass().getName());
         } finally {
