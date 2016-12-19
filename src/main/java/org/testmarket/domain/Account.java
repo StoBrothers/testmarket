@@ -13,7 +13,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @SuppressWarnings("serial")
 @Entity
@@ -23,7 +22,10 @@ public class Account implements Serializable {
     @Id
     @Column(unique = true, nullable = false, updatable = false)
     private String id;
-
+    
+    /**
+     * Default value 1000
+     */
     private BigDecimal balance = BigDecimal.valueOf(1000);
 
     @ManyToOne
@@ -108,7 +110,7 @@ public class Account implements Serializable {
     }
 
 
-    public String toString(List<FinancialInstrument> array) {
+    private String toString(List<FinancialInstrument> array) {
         StringBuilder buider = new StringBuilder();
         for (FinancialInstrument current : array) {
             buider.append(current.toString());

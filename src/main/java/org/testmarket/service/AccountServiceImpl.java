@@ -1,6 +1,5 @@
 package org.testmarket.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -12,9 +11,7 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testmarket.domain.Account;
@@ -23,7 +20,6 @@ import org.testmarket.domain.Company;
 import org.testmarket.domain.FinType;
 import org.testmarket.domain.FinancialInstrument;
 import org.testmarket.domain.FinancialInstrumentRepository;
-import org.testmarket.reports.AccountWrapper;
 
 @Service("accountService")
 public class AccountServiceImpl implements AccountService {
@@ -41,7 +37,7 @@ public class AccountServiceImpl implements AccountService {
 
     /**
      * Create one Account
-     * 
+     *
      * @throws Exception
      *
      */
@@ -75,18 +71,12 @@ public class AccountServiceImpl implements AccountService {
         return accountRepository.findAllByCompanyIdOrderById(companyID);
     }
 
-    //
-//    @Autowired(required = true)
-//    SessionFactory sessionFactory;
-
     @Autowired
     FinancialInstrumentRepository finRepository;
 
     @PersistenceContext
     private EntityManager em;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-   
     /**
      * @param count
      * @param soldFinCount
@@ -94,6 +84,7 @@ public class AccountServiceImpl implements AccountService {
      * @param finBuyer
      * @return
      */
+    @Transactional(propagation = Propagation.REQUIRED)
     private long updateFinPositionsCount(long count, long soldFinCount,
         FinancialInstrument finSeller, FinancialInstrument finBuyer) {
         long sellerFinCount = finSeller.getCount();
@@ -116,52 +107,18 @@ public class AccountServiceImpl implements AccountService {
         return soldFinCount;
     }
 
-    /**
-     * @param type
-     * @param soldFinCount
-     * @param accSeller
-     * @param accBauyer
-     */
-    private void updateAccountsBalance(FinType type, long soldFinCount, Account accSeller,
-        Account accBauyer) {
-        BigDecimal price = dealService.getAveragePriceFinInstrument(type);
-
-        BigDecimal cost = price.multiply(BigDecimal.valueOf(soldFinCount));
-
-        BigDecimal balanceBauer = accBauyer.getBalance();
-
-        BigDecimal balanceSeller = accSeller.getBalance();
-
-        accSeller.setBalance(balanceSeller.add(cost));
-
-        accBauyer.setBalance(balanceBauer.add(cost.negate()));
-
-        accountRepository.save(accBauyer);
-        accountRepository.save(accSeller);
-
-    }
-
-    public List<AccountWrapper>  getAccountsByStartId(String parameter) {
-        List<Account> accounts = accountRepository.findAllByCompanyIdOrderById(parameter + "%");
-        
-        
-        
-        return null;
-    }
-
-
-    
-    @SuppressWarnings("finally") //isolation= Isolation.SERIALIZABLE, 
-    @Transactional(readOnly=true, propagation = Propagation.REQUIRED, noRollbackFor=javax.persistence.RollbackException.class)  
+    @Override
+    @SuppressWarnings("finally")
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED, noRollbackFor = javax.persistence.RollbackException.class)
     public synchronized FinancialInstrument findResource(FinType type, Company seller) {
         FinancialInstrument finSeller = null;
-        try{
-        finSeller = finRepository.findOneForUpdateByCompanyIdAndType(type,
-              seller.getId());
+        try {
+            finSeller = finRepository.findOneForUpdateByCompanyIdAndType(type,
+                seller.getId());
         } catch (Exception e) {
             logger.error(e.toString());
         } finally {
-        return finSeller;    
+            return finSeller;
         }
     }
 }

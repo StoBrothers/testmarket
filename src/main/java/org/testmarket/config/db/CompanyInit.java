@@ -2,7 +2,6 @@ package org.testmarket.config.db;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +16,8 @@ import org.testmarket.service.CompanyService;
 import org.testmarket.service.FinancialInstrumentService;
 
 /**
- * Create Companies with accounts  and fin instruments.
- *   
+ * Create Companies with accounts and fin instruments.
+ * 
  * @author Sergey Stotskiy
  *
  */
@@ -26,7 +25,7 @@ import org.testmarket.service.FinancialInstrumentService;
 @Component("companyInit")
 @DependsOn({ "applicationProperties" })
 public class CompanyInit extends AbstractInit {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(CompanyInit.class);
 
     @Autowired
@@ -37,9 +36,8 @@ public class CompanyInit extends AbstractInit {
 
     @Autowired
     AccountService accountService;
-    
-    private int accountNumber = 0;
 
+    private int accountNumber = 0;
 
     @Override
     protected void init() {
@@ -54,13 +52,12 @@ public class CompanyInit extends AbstractInit {
             System.exit(1);
         }
 
-        
         Company yandCompany = checkCreatedCompany("YANDEX");
 
         logger.info(" YandexCompany " + yandCompany.toString());
-        
+
         List<Account> accounts = yandCompany.getAccounts(); //
-        
+
         for (Account account : accounts) {
             logger.info(" Account: " + account.toString());
         }
@@ -68,33 +65,30 @@ public class CompanyInit extends AbstractInit {
 
     /**
      * Get and check company
-     * 
+     *
      * @return
      */
     private Company checkCreatedCompany(final String companyName) {
 
-        Optional<Company>  value  = companyService.findOneById(companyName);
-        
+        Optional<Company> value = companyService.findOneById(companyName);
+
         Company company = null;
 
         if (value.isPresent()) {
-            company = value.get(); 
+            company = value.get();
         }
         return company;
     }
-    
 
-    
     /**
-     * Create accaounts and fin instruments for company 
-     * 
+     * Create accaounts and fin instruments for company
+     *
      * @param companyPrefix
      * @throws Exception
      */
     public void create(String companyPrefix) throws Exception {
 
         Company company = companyService.getOrCreateCompany(companyPrefix);
-
 
         char finPrefix = companyPrefix.charAt(0);
 
@@ -110,8 +104,8 @@ public class CompanyInit extends AbstractInit {
 
         i = 4;
         while (i > 0) {
-            account = accountService.getOrCreateAccount("M" + String.format("%04d", accountNumber),
-                company);
+            account = accountService
+                .getOrCreateAccount("M" + String.format("%04d", accountNumber), company);
             accountNumber++;
             i--;
             createFin(accountNumber, finPrefix, account, 0, 10);
@@ -119,8 +113,8 @@ public class CompanyInit extends AbstractInit {
 
         i = 3;
         while (i > 0) {
-            account = accountService.getOrCreateAccount("D" + String.format("%04d", accountNumber),
-                company);
+            account = accountService
+                .getOrCreateAccount("D" + String.format("%04d", accountNumber), company);
             accountNumber++;
             i--;
             createFin(accountNumber, finPrefix, account, 0, 10);
@@ -129,11 +123,13 @@ public class CompanyInit extends AbstractInit {
 
     /**
      * Create Fin instrument
-     * @param accountNumber 
+     * 
+     * @param accountNumber
      * @param finPrefix
      * @param account
-     * @param finNumber start number value 
-     * @param count 
+     * @param finNumber
+     *            start number value
+     * @param count
      * @throws Exception
      */
     private void createFin(int accountNumber, char finPrefix, Account account,
@@ -142,19 +138,18 @@ public class CompanyInit extends AbstractInit {
         FinType[] types = FinType.values();
 
         count = types.length;
-        
+
         while (count > 0) {
 
             StringBuilder builder = new StringBuilder();
             builder.append(finPrefix);
             builder.append(String.format("%03d", accountNumber));
             builder.append(String.format("%03d", finNumber));
-            
-            finService.getOrCreateFinInstrument(
-                builder.toString(),
-                account, types[--count]);
-                finNumber++;
-                
+
+            finService.getOrCreateFinInstrument(builder.toString(), account,
+                types[--count]);
+            finNumber++;
+
         }
     }
 }
