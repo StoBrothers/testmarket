@@ -40,6 +40,37 @@ public class Broker extends Thread {
         this.companies = companies;
     }
 
+    /**
+     * Make a trade with some attempts 
+     * 
+     * @param type
+     * @param cmpBuyer
+     * @param cmpSeller
+     * @param count
+     * @param delta
+     * @return
+     */
+    public long trade(FinType type, Company cmpBuyer, Company cmpSeller, long count,
+        BigDecimal delta) {
+        long resultCount = 0;
+        long retry = 0;
+        do {
+            try {
+                resultCount = tradeService.change(type, cmpBuyer, cmpSeller, count,
+                    delta);
+            } catch (Exception e) {
+                retry++;
+                logger.error("Error " + e.getMessage());
+            }
+        } while (resultCount == 0);
+
+        if (retry != 0) {
+            logger.info("Attempts was " + retry);
+        }
+
+        return resultCount;
+    }
+    
 
     @Override
     public void run() {
@@ -86,17 +117,9 @@ public class Broker extends Thread {
                 + " count : " + countFin);
 
             try {
-                long resultCount = tradeService.change(type, cmpSeller, cmpBuyer, countFin, delta);
+                long resultCount = trade(type, cmpSeller, cmpBuyer, countFin, delta);
             } catch (Exception e) {
                 logger.error("Deal failed with error: " + this.getName() + " : " + e.getMessage() + " thread sleep");
-                try {
-                    Thread.sleep(100);
-                    logger.error("Thread " + this.getName() + " wake up");
-                } catch (InterruptedException e1) {
-                    logger.error("Thread " + this.getName() + " waked up with exception: "
-                        + e1.getMessage());
-                }
-
             }
         }
 
