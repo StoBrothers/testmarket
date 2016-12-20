@@ -98,14 +98,6 @@ public class TradeInit extends AbstractInit {
                     } catch (Exception e) {
                         logger
                             .error("Error r1 " + e.getClass().getName() + "thread sleep");
-                        try {
-                            Thread.sleep(100);
-                            logger.error("Thread r1 wake up");
-                        } catch (InterruptedException e1) {
-                            logger.error(
-                                "Thread r1 waked up with exception: " + e1.toString());
-                        }
-
                     }
                 }
 
@@ -121,14 +113,6 @@ public class TradeInit extends AbstractInit {
                             cmpSeller, 1, new BigDecimal(-3));
                     } catch (Exception e) {
                         logger.error("Erroror r2 " + e.getClass().getName() + " sleep");
-                        try {
-                            Thread.sleep(100);
-                            logger.error("Thread r2 wake up");
-
-                        } catch (InterruptedException e1) {
-                            logger.error(
-                                "Thread r2 waked up with exception: " + e1.toString());
-                        }
                     }
                 }
             }
@@ -143,14 +127,6 @@ public class TradeInit extends AbstractInit {
                             cmpSeller, 1, new BigDecimal(1));
                     } catch (Exception e) {
                         logger.error("Error r3 " + e.getClass().getName());
-
-                        try {
-                            Thread.sleep(100);
-                            logger.error("Thread r3 wake up");
-                        } catch (InterruptedException e1) {
-                            logger.error(
-                                "Thread r3 waked up with exception: " + e1.toString());
-                        }
                     }
                 }
             }
@@ -165,14 +141,6 @@ public class TradeInit extends AbstractInit {
                             cmpSeller, 1, new BigDecimal(3));
                     } catch (Exception e) {
                         logger.error("Error r4 " + e.getClass().getName() + " sleep");
-                        try {
-                            Thread.sleep(100);
-                            logger.error("Thread r4 wake up");
-                        } catch (InterruptedException e1) {
-                            logger.error(
-                                "Thread r4 waked up with exception: " + e1.toString());
-                        }
-
                     }
                 }
             }
