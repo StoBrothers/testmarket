@@ -63,21 +63,29 @@ public class TradeServiceImpl implements TradeService {
         logger.info(" START change seller: " + seller.getId() + " buyer: " + buyer.getId()
             + "count: " + count);
 
-        FinancialInstrument finSeller = lockResources(type, seller, true);
-
+        FinancialInstrument finSeller, finBuyer;
+        
+        //for except deadlock 
+        if(seller.getId().compareTo(buyer.getId()) > 0 ){
+            finSeller = lockResources(type, seller, true);
+            finBuyer = lockResources(type, buyer, false);
+        } else {
+            finBuyer = lockResources(type, buyer, false);
+            finSeller = lockResources(type, seller, true);
+        }
+        
         if ((finSeller != null) && (finSeller.getCount() > 0)) {
             logger.debug("Seller count " + finSeller.getCount());
         } else {
             return soldFinCount;
         }
 
-        FinancialInstrument finBuyer = lockResources(type, buyer, false);
-
         if ((finBuyer != null) && (finBuyer.getCount() > 0)) {
             logger.debug("Buyer count " + finBuyer.getCount());
         } else {
             return soldFinCount;
         }
+
 
         Account accSeller = finSeller.getAccount();
         Account accBuyer = finBuyer.getAccount();
