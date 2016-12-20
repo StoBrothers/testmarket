@@ -45,7 +45,7 @@ public class ReportServiceImpl implements ReportService {
     DealService dealService;
 
     
-    public String doReportFile() {
+    public String doReportFile() throws IOException {
 
         // file will be created in folder where was started application  
         File file = new File ("result_" + version.getAndIncrement() + ".txt");
@@ -59,7 +59,8 @@ public class ReportServiceImpl implements ReportService {
             writer.flush();
             writer.close();
         } catch (IOException e) {
-            logger.error(" File could't to create: " + e.toString());
+            logger.error(" File could't to create: " + e.getMessage());
+            throw e;
         }
      return file.getAbsolutePath();        
          

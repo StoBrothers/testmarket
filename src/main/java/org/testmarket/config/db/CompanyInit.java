@@ -48,7 +48,7 @@ public class CompanyInit extends AbstractInit {
             create("MAILRU");
             create("CANADA");
         } catch (Exception e) {
-            logger.error(" Can't to create companies " + e.getCause());
+            logger.error(" Can't to create companies " + e.getMessage());
             System.exit(1);
         }
 
@@ -99,7 +99,7 @@ public class CompanyInit extends AbstractInit {
                 .getOrCreateAccount("U" + String.format("%04d", accountNumber), company);
             accountNumber++;
             i--;
-            createFin(accountNumber, finPrefix, account, 0, 10);
+            createFin(accountNumber, finPrefix, account, 0);
         }
 
         i = 4;
@@ -108,7 +108,7 @@ public class CompanyInit extends AbstractInit {
                 .getOrCreateAccount("M" + String.format("%04d", accountNumber), company);
             accountNumber++;
             i--;
-            createFin(accountNumber, finPrefix, account, 0, 10);
+            createFin(accountNumber, finPrefix, account, 0);
         }
 
         i = 3;
@@ -117,7 +117,7 @@ public class CompanyInit extends AbstractInit {
                 .getOrCreateAccount("D" + String.format("%04d", accountNumber), company);
             accountNumber++;
             i--;
-            createFin(accountNumber, finPrefix, account, 0, 10);
+            createFin(accountNumber, finPrefix, account, 0);
         }
     }
 
@@ -133,11 +133,11 @@ public class CompanyInit extends AbstractInit {
      * @throws Exception
      */
     private void createFin(int accountNumber, char finPrefix, Account account,
-        int finNumber, int count) throws Exception {
+        int finNumber) throws Exception {
 
         FinType[] types = FinType.values();
 
-        count = types.length;
+        int count = types.length;
 
         while (count > 0) {
 

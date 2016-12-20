@@ -27,10 +27,10 @@ import org.testmarket.domain.FinancialInstrumentRepository;
  *
  * @author Sergey Stotskiy
  */
-@Service("tradeSrvice")
-public class TradeSrviceImpl implements TradeService {
+@Service("tradeService")
+public class TradeServiceImpl implements TradeService {
 
-    private static final Logger logger = LoggerFactory.getLogger(TradeSrviceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(TradeServiceImpl.class);
 
     @Autowired
     DealRepository dealRepository;
@@ -60,10 +60,10 @@ public class TradeSrviceImpl implements TradeService {
 
         long soldFinCount = 0;
 
-        logger.info(" START change seller: " + seller.getId() + " buyer: "
-            + buyer.getId() + "count: " + count);
+        logger.info(" START change seller: " + seller.getId() + " buyer: " + buyer.getId()
+            + "count: " + count);
 
-        FinancialInstrument finSeller = lockResourcesWithCount(type, seller);
+        FinancialInstrument finSeller = lockResources(type, seller, true);
 
         if ((finSeller != null) && (finSeller.getCount() > 0)) {
             logger.debug("Seller count " + finSeller.getCount());
@@ -71,7 +71,7 @@ public class TradeSrviceImpl implements TradeService {
             return soldFinCount;
         }
 
-        FinancialInstrument finBuyer = lockResources(type, buyer);
+        FinancialInstrument finBuyer = lockResources(type, buyer, false);
 
         if ((finBuyer != null) && (finBuyer.getCount() > 0)) {
             logger.debug("Buyer count " + finBuyer.getCount());
@@ -98,16 +98,16 @@ public class TradeSrviceImpl implements TradeService {
 
     }
 
-    /** 
-     * Update financialInstruments information after finishing deal 
-     * 
+    /**
+     * Update financialInstruments information after finishing deal
+     *
      * @param count
      * @param soldFinCount
      * @param finSeller
      * @param finBuyer
      * @return
      */
-    @Transactional 
+    @Transactional
     private long updateFinPositionsCount(long count, long soldFinCount,
         FinancialInstrument finSeller, FinancialInstrument finBuyer) {
         long sellerFinCount = finSeller.getCount();
@@ -134,7 +134,7 @@ public class TradeSrviceImpl implements TradeService {
 
     /**
      * Update account financial information and information about deal
-     * 
+     *
      * @param type
      * @param soldFinCount
      * @param accSeller
@@ -169,48 +169,25 @@ public class TradeSrviceImpl implements TradeService {
      * Try to lock fin instrument and linked account for bought
      *
      * @param type
-     * @param seller
+     * @param company
+     * @param countNotNull if true that finding fin instrument with count > 0
      * @return FinancialInstrument if ok and exception is locking is finished with exception
      */
-    @SuppressWarnings("finally")
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, noRollbackFor = org.springframework.dao.PessimisticLockingFailureException.class)
-    private FinancialInstrument lockResources(FinType type, Company seller) {
-        FinancialInstrument finBuyer = null;
-        try {
-            finBuyer = finRepository.findOneForUpdateByCompanyIdAndType(type,
-                seller.getId());
-            Account accBuyer = finBuyer.getAccount();
-            em.lock(accBuyer, LockModeType.PESSIMISTIC_WRITE);
-            logger.debug("Locked: " + finBuyer.getId());
-        } catch (Exception e) {
-            logger.error("Lock is impossible: " + e.getClass().getName());
-        } finally {
-            return finBuyer;
-        }
-    }
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    private FinancialInstrument lockResources(FinType type, Company company,
+        boolean countNotNull) {
+        FinancialInstrument finInstrument = null;
 
-    /**
-     * Try to lock fin instrument and linked account for sell
-     *
-     * @param type
-     * @param seller
-     * @return FinancialInstrument if ok and exception is locking is finished with exception
-     */
-    @SuppressWarnings("finally")
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED, noRollbackFor = org.springframework.dao.PessimisticLockingFailureException.class)
-    private FinancialInstrument lockResourcesWithCount(FinType type, Company seller) {
-        FinancialInstrument finSeller = null;
-        try {
-            finSeller = finRepository.findOneForUpdateByCompanyIdAndTypeAndCount(type,
-                seller.getId());
-            Account accSeller = finSeller.getAccount();
-            em.lock(accSeller, LockModeType.PESSIMISTIC_WRITE);
-            logger.debug("Locked: " + finSeller.getId());
-        } catch (Exception e) {
-            logger.error("Lock is impossible: " + e.getClass().getName());
-        } finally {
-            return finSeller;
+        if (countNotNull) {
+            finInstrument = finRepository.findOneForUpdateByCompanyIdAndTypeAndCount(type,
+                company.getId());
+        } else {
+            finInstrument = finRepository.findOneForUpdateByCompanyIdAndType(type,
+                company.getId());
         }
+        Account accBuyer = finInstrument.getAccount();
+        em.lock(accBuyer, LockModeType.PESSIMISTIC_WRITE);
+        logger.debug("Locked: " + finInstrument.getId());
+        return finInstrument;
     }
-
 }

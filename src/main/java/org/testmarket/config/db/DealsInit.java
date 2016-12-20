@@ -71,7 +71,7 @@ public class DealsInit extends AbstractInit {
 
         List<Deal> deals = dealRepository.findAll();
         for (Deal current : deals) {
-            logger.info(current.toString());
+            logger.info("Deal: " +  current.toString());
         }
 
         BigDecimal value = dealService.getAveragePriceFinInstrument(FinType.AER);

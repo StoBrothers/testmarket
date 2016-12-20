@@ -1,5 +1,6 @@
 package org.testmarket.reports;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.testmarket.domain.Account;
@@ -11,7 +12,7 @@ import org.testmarket.domain.Account;
  */
 public interface ReportService {
     /**
-     * Prepare company report
+     * Prepare company report 
      * @return name of saved file 
      */
     String doReport();
@@ -19,7 +20,7 @@ public interface ReportService {
      * Prepare company report and save it to file 
      * @return formatted string
      */
-    String doReportFile(); 
+    String doReportFile() throws IOException; 
 
     /**
      * Get accounts report  

@@ -19,8 +19,11 @@ public class Broker extends Thread {
 
     private volatile List<Company> companies = null;
 
+    public Broker(String name) {
+        super.setName(name);
+        super.setPriority(MIN_PRIORITY);
+    }
 
-    
     
     /**
      * @param tradeService the tradeService to set
@@ -37,10 +40,6 @@ public class Broker extends Thread {
         this.companies = companies;
     }
 
-    public Broker(String name) {
-        super.setName(name);
-        super.setPriority(MIN_PRIORITY);
-    }
 
     @Override
     public void run() {
@@ -55,7 +54,8 @@ public class Broker extends Thread {
             numberCmpSeller = random.nextInt(compSize);
             numberCmpBuyer = random.nextInt(compSize);
 
-            while (numberCmpBuyer == numberCmpSeller) { // getting differently companies
+            // getting differently companies
+            while (numberCmpBuyer == numberCmpSeller) { 
                 numberCmpBuyer = random.nextInt(compSize);
             }
 
@@ -81,9 +81,9 @@ public class Broker extends Thread {
                 delta = delta.negate();
             }
 
-//            logger.info("Seller: " + cmpSeller.getId() + " Buyer: "
-//                + cmpBuyer.getId() + " type: " + type.name() + " delta: " + delta
-//                + " count : " + countFin);
+            logger.debug("Seller: " + cmpSeller.getId() + " Buyer: "
+                + cmpBuyer.getId() + " type: " + type.name() + " delta: " + delta
+                + " count : " + countFin);
 
             try {
                 long resultCount = tradeService.change(type, cmpSeller, cmpBuyer, countFin, delta);
@@ -94,7 +94,7 @@ public class Broker extends Thread {
                     logger.error("Thread " + this.getName() + " wake up");
                 } catch (InterruptedException e1) {
                     logger.error("Thread " + this.getName() + " waked up with exception: "
-                        + e1.toString());
+                        + e1.getMessage());
                 }
 
             }

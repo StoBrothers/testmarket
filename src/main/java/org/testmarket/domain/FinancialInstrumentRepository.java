@@ -22,6 +22,14 @@ public interface FinancialInstrumentRepository
     Optional<FinancialInstrument> findOneById(String id);
 
     Optional<FinancialInstrument> findOneByAccountIdAndType(String id, FinType type);
+    
+    @Query(" select sum(fin.count) from FinancialInstrument fin "
+        + "where fin.companyId = :companyId and fin.type = :type ") 
+
+    Long sumCountByCompanyIdAndType(
+        @Param("type") FinType type, @Param("companyId") String companyId);
+
+    
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({ @QueryHint(name = "javax.persistence.lock.timeout", value = "-1"),

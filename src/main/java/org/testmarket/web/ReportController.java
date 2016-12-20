@@ -1,5 +1,7 @@
 package org.testmarket.web;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,7 +23,11 @@ public class ReportController {
 
     @RequestMapping(path = "/rest/report/", method = RequestMethod.GET)
     public String findAccounts() {
-        return reportService.doReportFile();
+        try {
+            return reportService.doReportFile();
+        } catch (IOException e) {
+            return e.getMessage();
+        }
     }
 
 }
