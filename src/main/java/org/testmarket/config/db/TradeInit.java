@@ -93,14 +93,13 @@ public class TradeInit extends AbstractInit {
             public void run() {
                 for (int i = 0; i < 100; i++) { // count of try make deal
                     try {
-                        long resultCount = tradeService.change(FinType.AER, cmpSeller,
+                        long resultCount = tradeService.changeWithAttemps(FinType.AER, cmpSeller,
                             cmpBuyer, 1, new BigDecimal(-1));
-                    } catch (Exception e) {
-                        logger
-                            .error("Error r1 " + e.getClass().getName() + "thread sleep");
-                    }
+                } catch (Exception e ) {
+                    logger.error( "trads Error " + e.getMessage() + e.getMessage() + e.getClass().getName());
+                    e.printStackTrace();
                 }
-
+                }
             }
         };
 
@@ -108,12 +107,13 @@ public class TradeInit extends AbstractInit {
             @Override
             public void run() {
                 for (int i = 0; i < 100; i++) { // count of try make deal
-                    try {
-                        long resultCount = tradeService.change(FinType.AER, cmpBuyer,
+                    try{
+                        long resultCount = tradeService.changeWithAttemps(FinType.AER, cmpBuyer,
                             cmpSeller, 1, new BigDecimal(-3));
-                    } catch (Exception e) {
-                        logger.error("Erroror r2 " + e.getClass().getName() + " sleep");
-                    }
+                } catch (Exception e ) {
+                    logger.error( "trads Error " + e.getMessage() + e.getMessage() + e.getClass().getName());
+                    e.printStackTrace();
+                }
                 }
             }
         };
@@ -122,11 +122,12 @@ public class TradeInit extends AbstractInit {
             @Override
             public void run() {
                 for (int i = 0; i < 100; i++) { // count of try make deal
-                    try {
-                        long resultCount = tradeService.change(FinType.AER, cmpBuyer,
+                    try{
+                        long resultCount = tradeService.changeWithAttemps(FinType.AER, cmpBuyer,
                             cmpSeller, 1, new BigDecimal(1));
-                    } catch (Exception e) {
-                        logger.error("Error r3 " + e.getClass().getName());
+                    } catch (Exception e ) {
+                        logger.error( "trads Error " + e.getMessage() + e.getClass().getName() + e.getMessage() + e.getClass().getName() );
+                        e.printStackTrace();
                     }
                 }
             }
@@ -136,17 +137,18 @@ public class TradeInit extends AbstractInit {
             @Override
             public void run() {
                 for (int i = 0; i < 100; i++) { // count of try make deal
-                    try {
-                        long resultCount = tradeService.change(FinType.AER, cmpBuyer,
+                    try{
+                        long resultCount = tradeService.changeWithAttemps(FinType.AER, cmpBuyer,
                             cmpSeller, 1, new BigDecimal(3));
-                    } catch (Exception e) {
-                        logger.error("Error r4 " + e.getClass().getName() + " sleep");
-                    }
+                } catch (Exception e ) {
+                    logger.error( "trads Error " + e.getMessage() + e.getClass().getName() + e.getMessage() + e.getClass().getName() );
+                    e.printStackTrace();
+                }
                 }
             }
-        };
-
-        logger.info(" Solding started................. ");
+        };        
+        
+        logger.info(" Trading started................. ");
         r2.start();
         r1.start();
         r3.start();

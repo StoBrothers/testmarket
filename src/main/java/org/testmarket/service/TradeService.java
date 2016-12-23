@@ -25,4 +25,19 @@ public interface TradeService {
      */
     long change(FinType type, Company seller, Company buyer, long count, BigDecimal delta);
 
+
+    /**
+     * Change with unlimited attempts to execute change method and catch PessimisticLockException  
+     * 
+     * @param type
+     * @param seller company seller
+     * @param buyer company buyer 
+     * @param count count finInstruments
+     * @param delta delta of price can be negative or positive 
+     * 
+     * @return Count of sold fin instruments
+     */
+    long changeWithAttemps(FinType type, Company seller, Company buyer, long count, BigDecimal delta);
+
+    
 }

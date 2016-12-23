@@ -52,22 +52,7 @@ public class Broker extends Thread {
      */
     public long trade(FinType type, Company cmpBuyer, Company cmpSeller, long count,
         BigDecimal delta) {
-        long resultCount = 0;
-        long retry = 0;
-        do {
-            try {
-                resultCount = tradeService.change(type, cmpBuyer, cmpSeller, count,
-                    delta);
-            } catch (Exception e) {
-                retry++;
-                logger.error("Error " + e.getMessage());
-            }
-        } while (resultCount == 0);
-
-        if (retry != 0) {
-            logger.info("Attempts was " + retry);
-        }
-
+        long resultCount = tradeService.changeWithAttemps(type, cmpBuyer, cmpSeller, count, delta);
         return resultCount;
     }
     

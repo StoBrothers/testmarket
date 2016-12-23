@@ -9,7 +9,9 @@ import javax.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,8 +55,31 @@ public class TradeServiceImpl implements TradeService {
     @Autowired
     AccountService accountService;
 
+    
+    @Transactional  //(noRollbackFor = {PessimisticLockingFailureException.class, TransactionSystemException.class, javax.persistence.RollbackException.class})
+    public long changeWithAttemps(FinType type, Company seller, Company buyer, long count, BigDecimal delta) {
+        long resultCount = 0;
+        long retry = 0;
+        do {
+            try {
+                resultCount = change(type, seller, buyer, count, delta);
+            } catch (PessimisticLockingFailureException | TransactionSystemException | javax.persistence.RollbackException e) {
+                retry++;
+                logger.error("Error " + e.getMessage());
+            }
+        } while (resultCount == 0);
+
+        if (retry != 0) {
+            logger.info("Attempts was " + retry);
+        }
+
+        return resultCount;
+    }
+
+    
+    
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW, rollbackFor = org.springframework.dao.PessimisticLockingFailureException.class)
+    @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public long change(FinType type, Company seller, Company buyer, long count,
         BigDecimal delta) {
 
@@ -115,7 +140,6 @@ public class TradeServiceImpl implements TradeService {
      * @param finBuyer
      * @return
      */
-    @Transactional
     private long updateFinPositionsCount(long count, long soldFinCount,
         FinancialInstrument finSeller, FinancialInstrument finBuyer) {
         long sellerFinCount = finSeller.getCount();
@@ -148,7 +172,6 @@ public class TradeServiceImpl implements TradeService {
      * @param accSeller
      * @param accBauyer
      */
-    @Transactional
     private void updateAccountsBalanceAndDeal(FinType type, long soldFinCount,
         Account accSeller, Account accBauyer, BigDecimal delta) {
 
@@ -181,7 +204,6 @@ public class TradeServiceImpl implements TradeService {
      * @param countNotNull if true that finding fin instrument with count > 0
      * @return FinancialInstrument if ok and exception is locking is finished with exception
      */
-    @Transactional(isolation = Isolation.SERIALIZABLE)
     private FinancialInstrument lockResources(FinType type, Company company,
         boolean countNotNull) {
         FinancialInstrument finInstrument = null;
