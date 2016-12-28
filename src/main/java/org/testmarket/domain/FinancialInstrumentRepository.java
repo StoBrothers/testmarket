@@ -22,18 +22,19 @@ public interface FinancialInstrumentRepository
     Optional<FinancialInstrument> findOneById(String id);
 
     Optional<FinancialInstrument> findOneByAccountIdAndType(String id, FinType type);
-    
+
     @Query(" select sum(fin.count) from FinancialInstrument fin "
-        + "where fin.companyId = :companyId and fin.type = :type ") 
+        + "where fin.companyId = :companyId and fin.type = :type ")
 
-    Long sumCountByCompanyIdAndType(
-        @Param("type") FinType type, @Param("companyId") String companyId);
+    Long sumCountByCompanyIdAndType(@Param("type") FinType type,
+        @Param("companyId") String companyId);
 
-    
+    @Query(" select sum(fin.count) from FinancialInstrument fin where fin.type = :type ")
+    Long sumCountByType(@Param("type") FinType type);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({ @QueryHint(name = "javax.persistence.lock.timeout", value = "-1"),
-    @QueryHint(name = "javax.persistence.query.timeout", value = "-1") })
+        @QueryHint(name = "javax.persistence.query.timeout", value = "-1") })
 
     @Query(" select fin from FinancialInstrument fin "
         + "where fin.companyId = :companyId and fin.type = :type and rownum <2 ") //
@@ -41,11 +42,9 @@ public interface FinancialInstrumentRepository
     FinancialInstrument findOneForUpdateByCompanyIdAndType(@Param("type") FinType type,
         @Param("companyId") String companyId);
 
-    
-    
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({ @QueryHint(name = "javax.persistence.lock.timeout", value = "-1"),
-    @QueryHint(name = "javax.persistence.query.timeout", value = "-1") })
+        @QueryHint(name = "javax.persistence.query.timeout", value = "-1") })
 
     @Query(" select fin from FinancialInstrument fin "
         + "where fin.companyId = :companyId and fin.type = :type and fin.count > 0 and rownum <2 ") //

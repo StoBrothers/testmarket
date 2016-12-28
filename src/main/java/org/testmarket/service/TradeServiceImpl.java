@@ -1,11 +1,8 @@
 package org.testmarket.service;
 
 import java.math.BigDecimal;
-
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
-
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.testmarket.domain.Account;
 import org.testmarket.domain.AccountRepository;
 import org.testmarket.domain.Company;
-import org.testmarket.domain.CompanyRepository;
-import org.testmarket.domain.DealRepository;
 import org.testmarket.domain.FinType;
 import org.testmarket.domain.FinancialInstrument;
 import org.testmarket.domain.FinancialInstrumentRepository;
@@ -35,13 +30,7 @@ public class TradeServiceImpl implements TradeService {
     private static final Logger logger = LoggerFactory.getLogger(TradeServiceImpl.class);
 
     @Autowired
-    DealRepository dealRepository;
-
-    @Autowired
     DealService dealService;
-
-    @Autowired
-    CompanyRepository companyRepository;
 
     @Autowired
     FinancialInstrumentRepository finRepository;
@@ -49,68 +38,49 @@ public class TradeServiceImpl implements TradeService {
     @Autowired
     AccountRepository accountRepository;
 
-    @PersistenceContext
-    private EntityManager em;
-
-    @Autowired
-    AccountService accountService;
-
-    
-    @Transactional  //(noRollbackFor = {PessimisticLockingFailureException.class, TransactionSystemException.class, javax.persistence.RollbackException.class})
-    public long changeWithAttemps(FinType type, Company seller, Company buyer, long count, BigDecimal delta) {
+    @Override
+    @Transactional(noRollbackFor = { PessimisticLockingFailureException.class, 
+        TransactionSystemException.class, javax.persistence.RollbackException.class })
+    public long changeWithAttemps(FinType type, Company seller, Company buyer, long count,
+        BigDecimal delta) {
         long resultCount = 0;
         long retry = 0;
         do {
             try {
-                resultCount = change(type, seller, buyer, count, delta);
+                BigDecimal price = dealService.getAveragePriceFinInstrument(type);
+                resultCount = change(type, seller, buyer, count, price.add(delta));
+                BigDecimal amount = price.multiply(BigDecimal.valueOf(resultCount));
+                // for calculation average value
+                dealService.addDeal(type, price, amount, resultCount);
             } catch (PessimisticLockingFailureException | TransactionSystemException | javax.persistence.RollbackException e) {
-                retry++;
-                logger.error("Error " + e.getMessage());
+                retry++; // so one next attempts to execute this deal
+                logger.error("Error attempts:" + e.getMessage());
             }
         } while (resultCount == 0);
 
         if (retry != 0) {
             logger.info("Attempts was " + retry);
         }
-
         return resultCount;
     }
 
-    
-    
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRES_NEW)
     public long change(FinType type, Company seller, Company buyer, long count,
-        BigDecimal delta) {
+        BigDecimal price) {
 
         long soldFinCount = 0;
 
-        logger.info(" START change seller: " + seller.getId() + " buyer: " + buyer.getId()
-            + "count: " + count);
+        logger.debug(" START change seller: " + seller.getId() + " buyer: " + buyer.getId()  + "count: " + count);
 
-        FinancialInstrument finSeller, finBuyer;
-        
-        //for except deadlock 
-        if(seller.getId().compareTo(buyer.getId()) > 0 ){
-            finSeller = lockResources(type, seller, true);
-            finBuyer = lockResources(type, buyer, false);
-        } else {
-            finBuyer = lockResources(type, buyer, false);
-            finSeller = lockResources(type, seller, true);
-        }
-        
-        if ((finSeller != null) && (finSeller.getCount() > 0)) {
-            logger.debug("Seller count " + finSeller.getCount());
-        } else {
-            return soldFinCount;
+        // Get resources and try to except deadlock
+        FinancialInstrument[] finInstruments = getResources(type, seller, buyer);
+        if (finInstruments == null) {
+            return 0;
         }
 
-        if ((finBuyer != null) && (finBuyer.getCount() > 0)) {
-            logger.debug("Buyer count " + finBuyer.getCount());
-        } else {
-            return soldFinCount;
-        }
-
+        FinancialInstrument finSeller = finInstruments[0];
+        FinancialInstrument finBuyer = finInstruments[1];
 
         Account accSeller = finSeller.getAccount();
         Account accBuyer = finBuyer.getAccount();
@@ -122,13 +92,12 @@ public class TradeServiceImpl implements TradeService {
             + accBuyer.getBalance() + " count: " + soldFinCount);
 
         // update account balance
-        updateAccountsBalanceAndDeal(type, soldFinCount, accSeller, accBuyer, delta);
+        updateAccountsBalanceAndDeal(type, soldFinCount, accSeller, accBuyer, price);
 
-        logger.info(" Finished account change: " + accSeller.getBalance()
+        logger.debug(" Finished account change: " + accSeller.getBalance()
             + " buyer count: " + accBuyer.getBalance() + " count: " + soldFinCount);
 
         return soldFinCount;
-
     }
 
     /**
@@ -144,23 +113,20 @@ public class TradeServiceImpl implements TradeService {
         FinancialInstrument finSeller, FinancialInstrument finBuyer) {
         long sellerFinCount = finSeller.getCount();
 
-        long buyerFinCount = finBuyer.getCount();
-
         if (sellerFinCount > count) {
             soldFinCount = count;
         } else {
             soldFinCount = sellerFinCount;
         }
 
-        buyerFinCount += soldFinCount;
-        sellerFinCount -= soldFinCount;
+        finBuyer.addCount(soldFinCount);
+        finSeller.addCount(-soldFinCount);
 
-        finBuyer.setCount(buyerFinCount);
-        finSeller.setCount(sellerFinCount);
+        Set<FinancialInstrument> finInstrumnets = new HashSet<>();
+        finInstrumnets.add(finBuyer);
+        finInstrumnets.add(finSeller);
 
-        finRepository.save(finBuyer);
-        finRepository.save(finSeller);
-
+        finRepository.save(finInstrumnets);
         return soldFinCount;
     }
 
@@ -173,27 +139,11 @@ public class TradeServiceImpl implements TradeService {
      * @param accBauyer
      */
     private void updateAccountsBalanceAndDeal(FinType type, long soldFinCount,
-        Account accSeller, Account accBauyer, BigDecimal delta) {
-
-        BigDecimal price = dealService.getAveragePriceFinInstrument(type);
-
-        price = price.add(delta); // add delta
+        Account accSeller, Account accBauyer, BigDecimal price) {
 
         BigDecimal amount = price.multiply(BigDecimal.valueOf(soldFinCount));
 
-        BigDecimal balanceBauer = accBauyer.getBalance();
-
-        BigDecimal balanceSeller = accSeller.getBalance();
-
-        accSeller.setBalance(balanceSeller.add(amount));
-
-        accBauyer.setBalance(balanceBauer.add(amount.negate()));
-
-        accountRepository.save(accBauyer);
-        accountRepository.save(accSeller);
-
-        dealService.addDeal(type, price, amount, soldFinCount, accBauyer, accSeller);
-
+        accountRepository.updateBalances(accSeller.getId(), accBauyer.getId(), amount);
     }
 
     /**
@@ -201,13 +151,36 @@ public class TradeServiceImpl implements TradeService {
      *
      * @param type
      * @param company
-     * @param countNotNull if true that finding fin instrument with count > 0
+     * @param countNotNull
+     *            if true that finding fin instrument with count > 0
      * @return FinancialInstrument if ok and exception is locking is finished with exception
      */
     private FinancialInstrument lockResources(FinType type, Company company,
         boolean countNotNull) {
         FinancialInstrument finInstrument = null;
 
+        synchronized (company) {
+            finInstrument = lockFinResource(type, company, countNotNull);
+        }
+
+        if (finInstrument == null) {
+            return null;
+        }
+
+        return finInstrument;
+    }
+
+    /**
+     * Lock fin resource 
+     * 
+     * @param type
+     * @param company
+     * @param countNotNull
+     * @return
+     */
+    private FinancialInstrument lockFinResource(FinType type, Company company,
+        boolean countNotNull) {
+        FinancialInstrument finInstrument;
         if (countNotNull) {
             finInstrument = finRepository.findOneForUpdateByCompanyIdAndTypeAndCount(type,
                 company.getId());
@@ -215,9 +188,42 @@ public class TradeServiceImpl implements TradeService {
             finInstrument = finRepository.findOneForUpdateByCompanyIdAndType(type,
                 company.getId());
         }
-        Account accBuyer = finInstrument.getAccount();
-        em.lock(accBuyer, LockModeType.PESSIMISTIC_WRITE);
-        logger.debug("Locked: " + finInstrument.getId());
         return finInstrument;
     }
+
+    /**
+     * Get resources
+     *  
+     * @param type
+     * @param seller
+     * @param buyer
+     * @return [0] seller, [1] buyer
+     */
+    private FinancialInstrument[] getResources(FinType type, Company seller,
+        Company buyer) {
+        FinancialInstrument[] finInstruments = new FinancialInstrument[2];
+
+        if (seller.getId().compareTo(buyer.getId()) > 0) {
+            finInstruments[0] = lockResources(type, seller, true);
+            if ((finInstruments[0] == null) || (finInstruments[0].getCount() <= 0)) {
+                return null;
+            }
+            finInstruments[1] = lockResources(type, buyer, false);
+            if (finInstruments[1] == null) {
+                return null;
+            }
+        } else {
+            finInstruments[1] = lockResources(type, buyer, false);
+            if (finInstruments[1] == null) {
+                return null;
+            }
+            finInstruments[0] = lockResources(type, seller, true);
+            if ((finInstruments[0] == null) || (finInstruments[0].getCount() <= 0)) {
+                return null;
+            }
+        }
+
+        return finInstruments;
+    }
+
 }

@@ -15,8 +15,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
- * Account entity 
- * 
+ * Account entity
+ *
  * @author Sergey Stotskiy
  *
  */
@@ -28,7 +28,7 @@ public class Account implements Serializable {
     @Id
     @Column(unique = true, nullable = false, updatable = false)
     private String id;
-    
+
     /**
      * Default value 1000
      */
@@ -42,7 +42,8 @@ public class Account implements Serializable {
     private List<FinancialInstrument> finInstruments;
 
     /**
-     * Get id 
+     * Get id
+     * 
      * @return the id
      */
     public String getId() {
@@ -51,16 +52,17 @@ public class Account implements Serializable {
 
     /**
      * Set id
-     * @param id the id to set
+     * 
+     * @param id
+     *            the id to set
      */
     public void setId(String id) {
         this.id = id;
     }
 
-    
-    
     /**
      * Get balance
+     * 
      * @return the balance
      */
     public BigDecimal getBalance() {
@@ -69,15 +71,29 @@ public class Account implements Serializable {
 
     /**
      * Set balance
-     * @param balance the balance to set
-     *            
+     * 
+     * @param balance
+     *            the balance to set
+     * 
      */
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
 
     /**
-     * Get company 
+     * Add balance
+     * 
+     * @param balance
+     *            the balance to add
+     * 
+     *
+     *            public synchronized void addBalance(BigDecimal balance) { this.balance =
+     *            this.balance.add(balance); }
+     */
+
+    /**
+     * Get company
+     * 
      * @return the company
      */
     public Company getCompany() {
@@ -86,15 +102,18 @@ public class Account implements Serializable {
 
     /**
      * Set the company
-     * @param company the company to set
-     *            
+     * 
+     * @param company
+     *            the company to set
+     * 
      */
     public void setCompany(Company company) {
         this.company = company;
     }
 
     /**
-     * Get finInstruments 
+     * Get finInstruments
+     * 
      * @return the finInstruments
      */
     public List<FinancialInstrument> getFinInstruments() {
@@ -103,7 +122,9 @@ public class Account implements Serializable {
 
     /**
      * Set finInstruments
-     * @param finInstruments the finInstruments to set
+     * 
+     * @param finInstruments
+     *            the finInstruments to set
      */
     public void setFinInstruments(List<FinancialInstrument> finInstruments) {
         this.finInstruments = finInstruments;
@@ -111,16 +132,14 @@ public class Account implements Serializable {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
-        return "Account [accountID=" + id + ", balance=" + balance 
-            + ", company=" + company.getId() + ", finInstruments="
-            + toString(finInstruments) + "]";
+        return "Account [accountID=" + id + ", balance=" + balance + ", company="
+            + company.getId() + ", finInstruments=" + toString(finInstruments) + "]";
     }
-
 
     private String toString(List<FinancialInstrument> array) {
         StringBuilder buider = new StringBuilder();

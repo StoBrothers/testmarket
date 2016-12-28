@@ -101,6 +101,11 @@ public class FinancialInstrument implements Serializable {
     public void setCount(long count) {
         this.count = count;
     }
+    
+    public synchronized void addCount(long count) {
+        this.count += count;
+    }
+
 
     /**
      * Get account

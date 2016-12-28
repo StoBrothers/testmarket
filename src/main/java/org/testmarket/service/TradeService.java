@@ -27,7 +27,7 @@ public interface TradeService {
 
 
     /**
-     * Change with unlimited attempts to execute change method and catch PessimisticLockException  
+     * Change with unlimited attempts to execute change method and calculation average value
      * 
      * @param type
      * @param seller company seller

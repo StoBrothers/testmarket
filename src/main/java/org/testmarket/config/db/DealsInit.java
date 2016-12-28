@@ -66,12 +66,11 @@ public class DealsInit extends AbstractInit {
         createDeals(accSeller, accBuyer, 10);// this 10 deals participate in calculation average
                                              // value
 
-        dealService.addDeal(FinType.AER, new BigDecimal(10), new BigDecimal(100), 10,
-            accBuyer, accSeller);
+        dealService.addDeal(FinType.AER, new BigDecimal(10), new BigDecimal(100), 10);
 
         List<Deal> deals = dealRepository.findAll();
         for (Deal current : deals) {
-            logger.info("Deal: " +  current.toString());
+            logger.debug("Deal: " +  current.toString());
         }
 
         BigDecimal value = dealService.getAveragePriceFinInstrument(FinType.AER);
@@ -106,11 +105,10 @@ public class DealsInit extends AbstractInit {
     private void createDeal(Account accSeller, Account accBuyer, FinType finType,
         int countDeals, BigDecimal price) {
         while (countDeals > 0) {
-            Deal deal = new Deal(finType, price, new BigDecimal(100), 10, accBuyer,
-                accBuyer, new BigDecimal(10));
+            Deal deal = new Deal(finType, price, new BigDecimal(100), 10, new BigDecimal(10));
             countDeals--;
+            dealService.addDeal(finType, price, new BigDecimal(100), 10);
             dealRepository.save(deal);
-
         }
     }
 

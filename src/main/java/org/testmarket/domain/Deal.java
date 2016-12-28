@@ -8,7 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 /**
  * Deal entity for store all deals 
@@ -46,23 +45,15 @@ public class Deal implements Serializable {
      */
     private BigDecimal averagePrice;
     
-    @ManyToOne
-    private Account buyer;
-    
-    @ManyToOne
-    private Account seller;
-
     public Deal() {
         
     }
     
-    public Deal(FinType type, BigDecimal price, BigDecimal amount, long count, Account buyer, Account seller, BigDecimal averagePrice){
+    public Deal(FinType type, BigDecimal price, BigDecimal amount, long count, BigDecimal averagePrice){
         this.type = type;
         this.price = price;
         this.amount = amount;
         this.count = count;
-        this.buyer = buyer;
-        this.seller = seller;
         this.averagePrice = averagePrice; 
     }
     
@@ -164,46 +155,13 @@ public class Deal implements Serializable {
         this.averagePrice = averagePrice;
     }
 
-    /**
-     * Get buyer
-     * @return the buyer
-     */
-    public Account getBuyer() {
-        return buyer;
-    }
-
-    /**
-     * Set the buyer
-     * @param buyer the buyer to set
-     */
-    public void setBuyer(Account buyer) {
-        this.buyer = buyer;
-    }
-
-    /**
-     * Get seller
-     * @return the seller
-     */
-    public Account getSeller() {
-        return seller;
-    }
-
-    /**
-     * Set the seller
-     * @param seller the seller to set
-     */
-    public void setSeller(Account seller) {
-        this.seller = seller;
-    }
-
     /* (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
         return "Deal [id=" + id + ", type=" + type + ", price=" + price + ", amount="
-            + amount + ", count=" + count + ", averagePrice=" + averagePrice + ", buyer="
-            + buyer.getId() + ", seller=" + seller.getId() + "]";
+            + amount + ", count=" + count + ", averagePrice=" + averagePrice + "]";
     }
 
 }

@@ -1,4 +1,4 @@
-package org.testmarket.config.db;
+package org.testmarket.service.statistic;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,23 +10,49 @@ import org.testmarket.domain.Company;
 import org.testmarket.domain.FinType;
 import org.testmarket.service.TradeService;
 
+/**
+ * One broker for trading
+ *
+ * @author Sergey Stotskiy
+ *
+ */
 public class Broker extends Thread {
+
     private static final Logger logger = LoggerFactory.getLogger(Broker.class);
 
-    TradeService tradeService;
+    private int countDeals = 0;
 
     Random random = new Random();
 
     private volatile List<Company> companies = null;
 
+    TradeService tradeService;
+
+    StatisticService statisticService;
+
     public Broker(String name) {
         super.setName(name);
-        super.setPriority(MIN_PRIORITY);
     }
 
-    
     /**
-     * @param tradeService the tradeService to set
+     * @param countDeals
+     *            the countDeals to set
+     */
+    public void setCountDeals(int countDeals) {
+        this.countDeals = countDeals;
+    }
+
+    /**
+     * @param statisticService
+     *            the statisticService to set
+     */
+    public void setStatisticService(StatisticService statisticService) {
+        this.statisticService = statisticService;
+    }
+
+    /**
+     * @param tradeService
+     *            the tradeService to set
      */
     public void setTradeService(TradeService tradeService) {
         this.tradeService = tradeService;
@@ -41,8 +67,8 @@ public class Broker extends Thread {
     }
 
     /**
-     * Make a trade with some attempts 
-     * 
+     * Make a trade with some attempts
+     *
      * @param type
      * @param cmpBuyer
      * @param cmpSeller
@@ -52,13 +78,20 @@ public class Broker extends Thread {
      */
     public long trade(FinType type, Company cmpBuyer, Company cmpSeller, long count,
         BigDecimal delta) {
-        long resultCount = tradeService.changeWithAttemps(type, cmpBuyer, cmpSeller, count, delta);
+        long resultCount = 0;
+        try {
+            resultCount = tradeService.changeWithAttemps(type, cmpBuyer, cmpSeller, count,
+                delta);
+        } catch (Exception e) {
+            statisticService.addRolbacks();
+            logger.error(getName() + " : " + e.getMessage());
+        }
         return resultCount;
     }
-    
 
     @Override
     public void run() {
+        int countReportDeals = countDeals;
 
         int numberCmpSeller = 0;
         int numberCmpBuyer = 0;
@@ -71,7 +104,7 @@ public class Broker extends Thread {
             numberCmpBuyer = random.nextInt(compSize);
 
             // getting differently companies
-            while (numberCmpBuyer == numberCmpSeller) { 
+            while (numberCmpBuyer == numberCmpSeller) {
                 numberCmpBuyer = random.nextInt(compSize);
             }
 
@@ -85,10 +118,9 @@ public class Broker extends Thread {
             Double value = random.nextDouble();
             int highPart = random.nextInt(4);
             int signPart = random.nextInt(2);
-            
 
             int countFin = random.nextInt(6);
-            countFin++; // except 0 
+            countFin++; // 
 
             BigDecimal delta = BigDecimal.valueOf(value)
                 .add(BigDecimal.valueOf(highPart));
@@ -97,17 +129,21 @@ public class Broker extends Thread {
                 delta = delta.negate();
             }
 
-            logger.debug("Seller: " + cmpSeller.getId() + " Buyer: "
-                + cmpBuyer.getId() + " type: " + type.name() + " delta: " + delta
-                + " count : " + countFin);
+            logger.debug("Seller: " + cmpSeller.getId() + " Buyer: " + cmpBuyer.getId()
+                + " type: " + type.name() + " delta: " + delta + " count : " + countFin);
 
-            try {
-                long resultCount = trade(type, cmpSeller, cmpBuyer, countFin, delta);
-            } catch (Exception e) {
-                logger.error("Deal failed with error: " + this.getName() + " : " + e.getMessage() + " thread sleep");
+            long resultCount = trade(type, cmpSeller, cmpBuyer, countFin, delta);
+
+            if (resultCount == 0) {
+                statisticService.addRolbacks();
+            }
+
+            if (this.countDeals > 0) {
+                this.countDeals--;
+            } else if (this.countDeals == 0) {
+                statisticService.addFnishedDeals(countReportDeals); // save statistic information
+                this.countDeals = -1;
             }
         }
-
     }
-
 }
