@@ -30,6 +30,9 @@ public class TradeServiceImpl implements TradeService {
     private static final Logger logger = LoggerFactory.getLogger(TradeServiceImpl.class);
 
     @Autowired
+    TradeService tradeService;
+
+    @Autowired
     DealService dealService;
 
     @Autowired
@@ -48,7 +51,7 @@ public class TradeServiceImpl implements TradeService {
         do {
             try {
                 BigDecimal price = dealService.getAveragePriceFinInstrument(type);
-                resultCount = change(type, seller, buyer, count, price.add(delta));
+                resultCount = tradeService.change(type, seller, buyer, count, price.add(delta));
                 BigDecimal amount = price.multiply(BigDecimal.valueOf(resultCount));
                 // for calculation average value
                 dealService.addDeal(type, price, amount, resultCount);
